@@ -10,20 +10,12 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
 
-# -------------------------------
-# 1. Project Setup
-# -------------------------------
-
 def setup_project_structure():
     os.makedirs("data/raw", exist_ok=True)
     os.makedirs("data/processed", exist_ok=True)
     os.makedirs("outputs/charts", exist_ok=True)
     os.makedirs("outputs/reports", exist_ok=True)
-    print("✅ Project directories created.")
-
-# -------------------------------
-# 2. Reddit Data Collection (via PRAW)
-# -------------------------------
+    print("Project directories created.")
 
 def collect_reddit_posts():
     reddit = praw.Reddit(
@@ -38,7 +30,7 @@ def collect_reddit_posts():
     records = []
     for sub in subreddits:
         subreddit = reddit.subreddit(sub)
-        print(f"🔍 Searching in r/{sub}...")
+        print(f"Searching in r/{sub}...")
         for kw in keywords:
             for submission in subreddit.search(kw, limit=200):
                 text = (submission.title or "") + " " + (submission.selftext or "")
@@ -56,11 +48,8 @@ def collect_reddit_posts():
                 })
     df = pd.DataFrame(records)
     df.to_csv("data/raw/reddit_raw.csv", index=False)
-    print(f"✅ Collected {len(df)} Reddit posts.")
+    print(f"Collected {len(df)} Reddit posts.")
 
-# -------------------------------
-# 3. Data Cleaning & Processing
-# -------------------------------
 
 def clean_and_process():
     df = pd.read_csv("data/raw/reddit_raw.csv")
@@ -81,11 +70,7 @@ def clean_and_process():
     df["is_question"] = df["text"].apply(lambda x: "?" in str(x) or str(x).lower().startswith(("what", "how", "why")))
 
     df.to_csv("data/processed/reddit_cleaned.csv", index=False)
-    print(f"✅ Cleaned dataset saved: {len(df)} records.")
-
-# -------------------------------
-# 4. Visualization
-# -------------------------------
+    print(f"Cleaned dataset saved: {len(df)} records.")
 
 def generate_charts():
     df = pd.read_csv("data/processed/reddit_cleaned.csv")
@@ -103,11 +88,8 @@ def generate_charts():
     plt.savefig("outputs/charts/sentiment_distribution.png")
     plt.close()
 
-    print("✅ Charts generated.")
+    print("Charts generated.")
 
-# -------------------------------
-# 5. PDF Report Generation
-# -------------------------------
 
 def generate_pdf_report():
     df = pd.read_csv("data/processed/reddit_cleaned.csv")
@@ -149,11 +131,7 @@ def generate_pdf_report():
     ))
 
     doc.build(story)
-    print(f"📄 PDF report generated: {report_path}")
-
-# -------------------------------
-# 6. Main Execution Flow
-# -------------------------------
+    print(f"PDF report generated: {report_path}")
 
 def main():
     setup_project_structure()
@@ -161,7 +139,7 @@ def main():
     clean_and_process()
     generate_charts()
     generate_pdf_report()
-    print("🎉 Project workflow completed with PDF report.")
+    print("Project workflow completed with PDF report.")
 
 if __name__ == "__main__":
     main()
